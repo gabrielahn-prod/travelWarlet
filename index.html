@@ -31,15 +31,15 @@
         <div class="hero__chips" aria-label="핵심 요약">
           <div class="chip">
             <span>지갑 총액</span>
-            <strong id="walletTotal">0 ₫</strong>
+            <strong id="walletTotal">0동</strong>
           </div>
           <div class="chip">
             <span>오늘 지출</span>
-            <strong id="todaySpend">0 ₫</strong>
+            <strong id="todaySpend">0동</strong>
           </div>
           <div class="chip">
             <span>누적 지출</span>
-            <strong id="allSpend">0 ₫</strong>
+            <strong id="allSpend">0동</strong>
           </div>
         </div>
       </header>
@@ -59,7 +59,7 @@
           <div class="panel panel--highlight">
             <div>
               <p class="panel-label">보유 현금</p>
-              <div class="big-number" id="walletTotalLarge">0 ₫</div>
+              <div class="big-number" id="walletTotalLarge">0동</div>
             </div>
             <div class="panel-metrics">
               <div>
@@ -109,7 +109,7 @@
 
             <div class="field-row">
               <label class="field">
-                <span>동(₫)</span>
+                <span>금액(동)</span>
                 <input
                   id="expenseAmount"
                   name="amount"
@@ -117,7 +117,7 @@
                   inputmode="numeric"
                   min="0"
                   step="1000"
-                  placeholder="예: 45000"
+                  placeholder="예: 4만5천동"
                   required
                 />
               </label>
@@ -139,10 +139,10 @@
             </label>
 
             <div class="quick-amounts" aria-label="빠른 금액 입력">
-              <button type="button" data-quick-amount="10000">10,000</button>
-              <button type="button" data-quick-amount="20000">20,000</button>
-              <button type="button" data-quick-amount="50000">50,000</button>
-              <button type="button" data-quick-amount="100000">100,000</button>
+              <button type="button" data-quick-amount="10000">1만동</button>
+              <button type="button" data-quick-amount="20000">2만동</button>
+              <button type="button" data-quick-amount="50000">5만동</button>
+              <button type="button" data-quick-amount="100000">10만동</button>
             </div>
 
             <button class="primary-button" type="submit">지출 저장</button>

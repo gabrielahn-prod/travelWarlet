@@ -2,16 +2,16 @@ const STORAGE_KEY = "travel-wallet-demo-v2";
 const API_ENDPOINT = "/api/state";
 
 const denominations = [
-  { value: 500000, label: "500,000 ₫" },
-  { value: 200000, label: "200,000 ₫" },
-  { value: 100000, label: "100,000 ₫" },
-  { value: 50000, label: "50,000 ₫" },
-  { value: 20000, label: "20,000 ₫" },
-  { value: 10000, label: "10,000 ₫" },
-  { value: 5000, label: "5,000 ₫" },
-  { value: 2000, label: "2,000 ₫" },
-  { value: 1000, label: "1,000 ₫" },
-  { value: 500, label: "500 ₫" },
+  { value: 500000, label: "50만동" },
+  { value: 200000, label: "20만동" },
+  { value: 100000, label: "10만동" },
+  { value: 50000, label: "5만동" },
+  { value: 20000, label: "2만동" },
+  { value: 10000, label: "1만동" },
+  { value: 5000, label: "5천동" },
+  { value: 2000, label: "2천동" },
+  { value: 1000, label: "1천동" },
+  { value: 500, label: "500동" },
 ];
 
 const demoState = {
@@ -80,7 +80,7 @@ function localISODate(offsetDays = 0) {
 }
 
 function money(value) {
-  return new Intl.NumberFormat("vi-VN").format(Math.round(value)) + " ₫";
+  return new Intl.NumberFormat("ko-KR").format(Math.round(value)) + "동";
 }
 
 function loadFallbackState() {

@@ -35,20 +35,5 @@ order by expense_date desc;
 alter table public.wallet_denominations enable row level security;
 alter table public.expenses enable row level security;
 
--- Replace with your own auth policy later.
-drop policy if exists "Allow read/write for authenticated users" on public.wallet_denominations;
-drop policy if exists "Allow read/write for authenticated users" on public.expenses;
-
-create policy "Allow read/write for authenticated users"
-  on public.wallet_denominations
-  for all
-  to authenticated
-  using (true)
-  with check (true);
-
-create policy "Allow read/write for authenticated users"
-  on public.expenses
-  for all
-  to authenticated
-  using (true)
-  with check (true);
+-- This demo uses the Supabase service role key from Vercel serverless functions.
+-- No public RLS policy is required unless you later expose the database directly to the browser.

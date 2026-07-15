@@ -1,4 +1,5 @@
-const STORAGE_KEY = "travel-wallet-demo-v1";
+const STORAGE_KEY = "travel-wallet-demo-v2";
+const API_ENDPOINT = "/api/state";
 
 const denominations = [
   { value: 500000, label: "500,000 ₫" },
@@ -41,7 +42,9 @@ const els = {
   resetDemoBtn: document.getElementById("resetDemoBtn"),
 };
 
-let state = loadState();
+let state = cloneState(demoState);
+let syncTimer = null;
+let apiAvailable = true;
 
 function todayISO() {
   return localISODate(0);
@@ -80,7 +83,7 @@ function money(value) {
   return new Intl.NumberFormat("vi-VN").format(Math.round(value)) + " ₫";
 }
 
-function loadState() {
+function loadFallbackState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
@@ -90,15 +93,75 @@ function loadState() {
     const parsed = JSON.parse(raw);
     return {
       wallet: { ...demoState.wallet, ...(parsed.wallet ?? {}) },
-      expenses: Array.isArray(parsed.expenses) && parsed.expenses.length ? parsed.expenses : cloneState(demoState.expenses),
+      expenses:
+        Array.isArray(parsed.expenses) && parsed.expenses.length
+          ? parsed.expenses
+          : cloneState(demoState.expenses),
     };
   } catch {
     return cloneState(demoState);
   }
 }
 
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function saveFallbackState(nextState) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+}
+
+async function loadState() {
+  try {
+    const response = await fetch(API_ENDPOINT, { headers: { Accept: "application/json" } });
+    if (!response.ok) {
+      throw new Error(`API unavailable: ${response.status}`);
+    }
+
+    const data = await response.json();
+    apiAvailable = true;
+    return {
+      wallet: { ...demoState.wallet, ...(data.wallet ?? {}) },
+      expenses: Array.isArray(data.expenses) ? data.expenses : cloneState(demoState.expenses),
+    };
+  } catch {
+    apiAvailable = false;
+    return loadFallbackState();
+  }
+}
+
+async function saveState(nextState) {
+  if (!apiAvailable) {
+    saveFallbackState(nextState);
+    return;
+  }
+
+  try {
+    const response = await fetch(API_ENDPOINT, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nextState),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Save failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    state = {
+      wallet: { ...demoState.wallet, ...(data.wallet ?? nextState.wallet) },
+      expenses: Array.isArray(data.expenses) ? data.expenses : nextState.expenses,
+    };
+  } catch {
+    apiAvailable = false;
+    saveFallbackState(nextState);
+  }
+}
+
+function scheduleSave() {
+  if (syncTimer) {
+    clearTimeout(syncTimer);
+  }
+
+  syncTimer = setTimeout(() => {
+    void saveState(state);
+  }, 180);
 }
 
 function walletTotal() {
@@ -106,11 +169,13 @@ function walletTotal() {
 }
 
 function expenseTotal() {
-  return state.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  return state.expenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
 }
 
 function expenseTotalForDate(date) {
-  return state.expenses.filter((expense) => expense.date === date).reduce((sum, expense) => sum + expense.amount, 0);
+  return state.expenses
+    .filter((expense) => expense.date === date)
+    .reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
 }
 
 function renderWallet() {
@@ -131,13 +196,17 @@ function renderWallet() {
 
     valueLabel.textContent = label;
     countLabel.textContent = state.wallet[value] ?? 0;
+
     minus.addEventListener("click", () => {
       state.wallet[value] = Math.max(0, (state.wallet[value] ?? 0) - 1);
-      persistAndRender();
+      renderAll();
+      scheduleSave();
     });
+
     plus.addEventListener("click", () => {
       state.wallet[value] = (state.wallet[value] ?? 0) + 1;
-      persistAndRender();
+      renderAll();
+      scheduleSave();
     });
 
     card.dataset.denomination = String(value);
@@ -197,16 +266,17 @@ function renderExpenses() {
     count.textContent = `${grouped[date].length}건`;
 
     grouped[date].forEach((expense) => {
-        const expenseNode = itemTemplate.content.cloneNode(true);
-        expenseNode.querySelector(".expense-title").textContent = expense.title;
-        expenseNode.querySelector(".expense-memo").textContent = expense.memo || "메모 없음";
-        expenseNode.querySelector(".expense-amount").textContent = money(expense.amount);
-        expenseNode.querySelector(".remove-button").addEventListener("click", () => {
-          state.expenses = state.expenses.filter((item) => item.id !== expense.id);
-          persistAndRender();
-        });
-        list.appendChild(expenseNode);
+      const expenseNode = itemTemplate.content.cloneNode(true);
+      expenseNode.querySelector(".expense-title").textContent = expense.title;
+      expenseNode.querySelector(".expense-memo").textContent = expense.memo || "메모 없음";
+      expenseNode.querySelector(".expense-amount").textContent = money(expense.amount);
+      expenseNode.querySelector(".remove-button").addEventListener("click", () => {
+        state.expenses = state.expenses.filter((item) => item.id !== expense.id);
+        renderAll();
+        scheduleSave();
       });
+      list.appendChild(expenseNode);
+    });
 
     els.expenseGroups.appendChild(node);
   });
@@ -228,8 +298,7 @@ function formatDate(value) {
   }).format(date);
 }
 
-function persistAndRender() {
-  saveState();
+function renderAll() {
   renderWallet();
   renderExpenses();
 }
@@ -270,11 +339,11 @@ function bootstrapForm() {
   els.expenseForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const title = els.expenseTitle.value.trim();
-    const amount = Number(els.expenseAmount.value);
+    const amount = Math.floor(Number(els.expenseAmount.value));
     const date = els.expenseDate.value;
     const memo = els.expenseMemo.value.trim();
 
-    if (!title || !amount || amount < 0 || !date) {
+    if (!title || !Number.isFinite(amount) || amount <= 0 || !date) {
       return;
     }
 
@@ -288,7 +357,8 @@ function bootstrapForm() {
 
     els.expenseForm.reset();
     els.expenseDate.value = date;
-    persistAndRender();
+    renderAll();
+    scheduleSave();
     switchPage("expensePage");
   });
 }
@@ -298,11 +368,17 @@ function bootstrapReset() {
     state = cloneState(demoState);
     els.expenseForm.reset();
     els.expenseDate.value = todayISO();
-    persistAndRender();
+    renderAll();
+    scheduleSave();
   });
 }
 
-bootstrapNavigation();
-bootstrapForm();
-bootstrapReset();
-persistAndRender();
+async function bootstrap() {
+  bootstrapNavigation();
+  bootstrapForm();
+  bootstrapReset();
+  state = await loadState();
+  renderAll();
+}
+
+await bootstrap();

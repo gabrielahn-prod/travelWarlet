@@ -1,0 +1,12 @@
+{
+  "name": "travel-wallet",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Mobile-first Vietnam dong travel wallet demo with Supabase and Vercel.",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.56.0"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}

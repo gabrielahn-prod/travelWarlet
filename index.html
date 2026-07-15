@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="베트남 동 지갑과 여행 지출을 모바일에서 빠르게 기록하는 데모 앱"
+      content="베트남 여행 현금과 지출을 기록하는 지갑"
     />
     <title>Travel Wallet Demo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,12 +20,8 @@
     <div class="shell">
       <header class="hero">
         <div class="hero__copy">
-          <p class="eyebrow">Vietnam Wallet Demo</p>
-          <h1>동 지갑과 여행 지출을 한 번에 관리하세요.</h1>
-          <p class="hero__text">
-            베트남 여행에서 현금 보유액과 하루 단위 지출을 빠르게 확인하는
-            모바일 중심 웹앱입니다.
-          </p>
+          <h1>여행 지갑</h1>
+          <p class="hero__text">현금과 지출을 기록하세요.</p>
         </div>
 
         <div class="hero__chips" aria-label="핵심 요약">
@@ -48,8 +44,8 @@
         <section class="page is-active" id="walletPage" aria-labelledby="walletTab">
           <div class="section-head">
             <div>
-              <p class="section-kicker">지갑 페이지</p>
-              <h2>지폐 수량을 입력하면 자동으로 합계가 계산됩니다.</h2>
+              <p class="section-kicker">지갑</p>
+              <h2>보유한 지폐를 입력하세요.</h2>
             </div>
             <button class="ghost-button" id="resetDemoBtn" type="button">
               데모 초기화
@@ -68,7 +64,7 @@
               </div>
               <div>
                 <span>설정 방식</span>
-                <strong>스테퍼</strong>
+                <strong>수량 입력</strong>
               </div>
             </div>
           </div>
@@ -78,8 +74,8 @@
           <div class="panel">
             <div class="section-head section-head--compact">
               <div>
-                <p class="section-kicker">지갑 요약</p>
-                <h3>어디에 얼마가 있는지 한눈에 봅니다.</h3>
+                <p class="section-kicker">보유 현금</p>
+                <h3>지폐별 금액을 확인하세요.</h3>
               </div>
             </div>
             <div class="summary-list" id="walletBreakdown"></div>
@@ -89,8 +85,8 @@
         <section class="page" id="expensePage" aria-labelledby="expenseTab">
           <div class="section-head">
             <div>
-              <p class="section-kicker">지출 페이지</p>
-              <h2>제목과 동 금액을 넣으면 하루 단위로 자동 집계됩니다.</h2>
+              <p class="section-kicker">지출</p>
+              <h2>오늘 쓴 금액을 기록하세요.</h2>
             </div>
           </div>
 
@@ -151,8 +147,8 @@
           <div class="panel">
             <div class="section-head section-head--compact">
               <div>
-                <p class="section-kicker">일별 지출</p>
-                <h3>날짜별 총합과 상세 내역을 함께 보여줍니다.</h3>
+                <p class="section-kicker">기록</p>
+                <h3>날짜별 지출을 확인하세요.</h3>
               </div>
             </div>
             <div id="expenseGroups" class="expense-groups"></div>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="베트남 동 지갑과 여행 지출을 모바일에서 빠르게 기록하는 데모 앱"
+    />
+    <title>Travel Wallet Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div class="hero__copy">
+          <p class="eyebrow">Vietnam Wallet Demo</p>
+          <h1>동 지갑과 여행 지출을 한 번에 관리하세요.</h1>
+          <p class="hero__text">
+            베트남 여행에서 현금 보유액과 하루 단위 지출을 빠르게 확인하는
+            모바일 중심 웹앱입니다.
+          </p>
+        </div>
+
+        <div class="hero__chips" aria-label="핵심 요약">
+          <div class="chip">
+            <span>지갑 총액</span>
+            <strong id="walletTotal">0 ₫</strong>
+          </div>
+          <div class="chip">
+            <span>오늘 지출</span>
+            <strong id="todaySpend">0 ₫</strong>
+          </div>
+          <div class="chip">
+            <span>누적 지출</span>
+            <strong id="allSpend">0 ₫</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="page is-active" id="walletPage" aria-labelledby="walletTab">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">지갑 페이지</p>
+              <h2>지폐 수량을 입력하면 자동으로 합계가 계산됩니다.</h2>
+            </div>
+            <button class="ghost-button" id="resetDemoBtn" type="button">
+              데모 초기화
+            </button>
+          </div>
+
+          <div class="panel panel--highlight">
+            <div>
+              <p class="panel-label">보유 현금</p>
+              <div class="big-number" id="walletTotalLarge">0 ₫</div>
+            </div>
+            <div class="panel-metrics">
+              <div>
+                <span>지폐 종류</span>
+                <strong>10종</strong>
+              </div>
+              <div>
+                <span>설정 방식</span>
+                <strong>스테퍼</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="denomination-grid" id="denominationGrid" aria-label="지폐 수량 입력"></div>
+
+          <div class="panel">
+            <div class="section-head section-head--compact">
+              <div>
+                <p class="section-kicker">지갑 요약</p>
+                <h3>어디에 얼마가 있는지 한눈에 봅니다.</h3>
+              </div>
+            </div>
+            <div class="summary-list" id="walletBreakdown"></div>
+          </div>
+        </section>
+
+        <section class="page" id="expensePage" aria-labelledby="expenseTab">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">지출 페이지</p>
+              <h2>제목과 동 금액을 넣으면 하루 단위로 자동 집계됩니다.</h2>
+            </div>
+          </div>
+
+          <form class="panel form-card" id="expenseForm">
+            <label class="field">
+              <span>제목</span>
+              <input
+                id="expenseTitle"
+                name="title"
+                type="text"
+                placeholder="예: 반미 점심, Grab 택시"
+                maxlength="40"
+                required
+              />
+            </label>
+
+            <div class="field-row">
+              <label class="field">
+                <span>동(₫)</span>
+                <input
+                  id="expenseAmount"
+                  name="amount"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  step="1000"
+                  placeholder="예: 45000"
+                  required
+                />
+              </label>
+              <label class="field">
+                <span>날짜</span>
+                <input id="expenseDate" name="date" type="date" required />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>메모</span>
+              <input
+                id="expenseMemo"
+                name="memo"
+                type="text"
+                placeholder="선택 입력"
+                maxlength="80"
+              />
+            </label>
+
+            <div class="quick-amounts" aria-label="빠른 금액 입력">
+              <button type="button" data-quick-amount="10000">10,000</button>
+              <button type="button" data-quick-amount="20000">20,000</button>
+              <button type="button" data-quick-amount="50000">50,000</button>
+              <button type="button" data-quick-amount="100000">100,000</button>
+            </div>
+
+            <button class="primary-button" type="submit">지출 저장</button>
+          </form>
+
+          <div class="panel">
+            <div class="section-head section-head--compact">
+              <div>
+                <p class="section-kicker">일별 지출</p>
+                <h3>날짜별 총합과 상세 내역을 함께 보여줍니다.</h3>
+              </div>
+            </div>
+            <div id="expenseGroups" class="expense-groups"></div>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="페이지 이동">
+        <button class="nav-tab is-active" id="walletTab" type="button" data-page="walletPage">
+          지갑
+        </button>
+        <button class="nav-tab" id="expenseTab" type="button" data-page="expensePage">
+          지출
+        </button>
+      </nav>
+    </div>
+
+    <template id="denominationTemplate">
+      <article class="denomination-card">
+        <div>
+          <p class="denomination-value"></p>
+          <small class="denomination-label"></small>
+        </div>
+        <div class="stepper">
+          <button type="button" data-action="minus">-</button>
+          <strong class="denomination-count">0</strong>
+          <button type="button" data-action="plus">+</button>
+        </div>
+      </article>
+    </template>
+
+    <template id="expenseGroupTemplate">
+      <article class="expense-group">
+        <header class="expense-group__head">
+          <div>
+            <p class="expense-date"></p>
+            <strong class="expense-day-total"></strong>
+          </div>
+          <span class="expense-count"></span>
+        </header>
+        <div class="expense-list"></div>
+      </article>
+    </template>
+
+    <template id="expenseItemTemplate">
+      <div class="expense-item">
+        <div class="expense-item__main">
+          <strong class="expense-title"></strong>
+          <p class="expense-memo"></p>
+        </div>
+        <div class="expense-item__side">
+          <strong class="expense-amount"></strong>
+          <button type="button" class="remove-button">삭제</button>
+        </div>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
